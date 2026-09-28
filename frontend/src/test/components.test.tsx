@@ -11,7 +11,7 @@ import { columnsFor } from '@/features/gallery/VirtualGrid';
 
 vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }) }));
 
-describe('Highlighted', () => {
+describe('F03 Highlighted 高亮渲染', () => {
   it('把 \\u0002…\\u0003 包裹的命中词渲染成 mark，且不解析 HTML', () => {
     const { container } = render(<Highlighted text={'<b>x</b> \u0002赛博朋克\u0003 风格'} />);
     expect(container.querySelector('mark')?.textContent).toBe('赛博朋克');
@@ -24,7 +24,7 @@ describe('Highlighted', () => {
   });
 });
 
-describe('JsonText', () => {
+describe('F05 JsonText JSON 着色', () => {
   it('格式化并给键、字符串着色', () => {
     const { container } = render(<JsonText text='{"type":"poster","size":3,"ok":true}' />);
     expect(container.textContent).toContain('"type": "poster"');
@@ -37,7 +37,7 @@ describe('JsonText', () => {
   });
 });
 
-describe('columnsFor', () => {
+describe('F01 columnsFor 网格列数', () => {
   it('按容器宽度决定列数', () => {
     expect(columnsFor(320)).toBe(1);
     expect(columnsFor(400)).toBe(2);
@@ -51,7 +51,7 @@ function ParamsProbe() {
   return <pre data-testid="filters">{JSON.stringify(filters)}</pre>;
 }
 
-describe('useGalleryParams', () => {
+describe('F04 useGalleryParams URL 状态', () => {
   it('从 URL 解析筛选条件，非法 tag 被忽略', () => {
     render(
       <MemoryRouter initialEntries={['/?c=posters&q=%20猫%20&tag=abc&all=1']}>
@@ -82,7 +82,7 @@ const detail: CaseDetail = {
   updated_at: '2026-01-01T00:00:00Z',
 };
 
-describe('PromptBlock', () => {
+describe('F05 F06 PromptBlock 语言切换与复制', () => {
   it('双语提示词可以切换语言，并复制当前语言', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(window, 'isSecureContext', { value: true, configurable: true });

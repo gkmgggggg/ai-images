@@ -43,6 +43,7 @@ A cat
 
 
 def test_parse_prompt_markdown() -> None:
+    """F08 F12：解析案例边界、来源、中英文与比例标签。"""
     cases = parse_prompt_markdown(SAMPLE)
     assert [c.upstream_no for c in cases] == [3, 58, 7]
 
@@ -65,6 +66,7 @@ def test_parse_prompt_markdown() -> None:
 
 
 def test_split_languages_uses_character_ratio() -> None:
+    """F08：按字符占比判断整段提示词的语言。"""
     # 英文提示词里夹了少量要渲染的中文，仍然算英文
     zh, en = split_languages('A poster with the title "北京" in bold serif letters, cinematic lighting')
     assert (zh, en[:8]) == ("", "A poster")
@@ -73,21 +75,25 @@ def test_split_languages_uses_character_ratio() -> None:
 
 
 def test_detect_format() -> None:
+    """F08：识别 JSON 格式的提示词。"""
     assert detect_format('{"type": "poster"}') == "json"
     assert detect_format("{not json") == "text"
     assert detect_format("plain") == "text"
 
 
 def test_detect_ratios_ignores_times_and_unknown_ratios() -> None:
+    """F12：比例识别忽略时间与非常见比例。"""
     assert detect_ratios("12:30 开会，7:5 不常见，比例 4：5") == ["4:5"]
     assert detect_ratios("16比9 宽屏") == ["16:9"]
 
 
 def test_parse_source_plain_text() -> None:
+    """F08：纯文本来源不生成链接。"""
     assert parse_source("小红书号4264014889") == ("小红书号4264014889", None)
 
 
 def test_bundled_resources_parse_completely() -> None:
+    """F08：仓库内快照的 668 条案例都能解析出提示词。"""
     db = REPO_DIR / "resources" / "image-inspirer" / "db"
     total = 0
     for prompt in db.glob("*/prompt.md"):

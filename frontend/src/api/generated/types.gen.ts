@@ -874,6 +874,8 @@ export type ListCasesApiV1CasesGetData = {
         q?: string | null;
         /**
          * Has Image
+         *
+         * 只返回有图片的案例
          */
         has_image?: boolean;
         /**
@@ -884,10 +886,14 @@ export type ListCasesApiV1CasesGetData = {
         tag?: number | null;
         /**
          * Cursor
+         *
+         * 上一页返回的 next_cursor
          */
         cursor?: string | null;
         /**
          * Limit
+         *
+         * 每页条数
          */
         limit?: number;
     };

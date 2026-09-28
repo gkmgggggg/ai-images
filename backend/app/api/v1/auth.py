@@ -13,7 +13,7 @@ from app.schemas import AdminMe, LoginIn
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=AdminMe)
+@router.post("/login", response_model=AdminMe, summary="管理员登录")
 async def login(data: LoginIn, request: Request, response: Response, session: SessionDep) -> AdminMe:
     client_key = request.client.host if request.client else "unknown"
     if login_limiter.is_blocked(client_key):
@@ -41,13 +41,13 @@ async def login(data: LoginIn, request: Request, response: Response, session: Se
     return AdminMe(id=admin.id, username=admin.username)
 
 
-@router.post("/logout", status_code=204)
+@router.post("/logout", status_code=204, summary="退出登录")
 async def logout(response: Response) -> Response:
     response.delete_cookie(get_settings().session_cookie, path="/")
     response.status_code = 204
     return response
 
 
-@router.get("/me", response_model=AdminMe)
+@router.get("/me", response_model=AdminMe, summary="当前管理员")
 async def me(admin: AdminDep) -> AdminMe:
     return AdminMe(id=admin.id, username=admin.username)

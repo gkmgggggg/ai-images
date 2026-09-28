@@ -7,6 +7,7 @@ from tests.conftest import make_jpeg, write_resources
 
 
 async def test_import_is_idempotent(resources_dir: Path) -> None:
+    """F08：重复导入不产生变化。"""
     first = await run_import(resources_dir=resources_dir)
     assert (first.status, first.created, first.failed) == ("succeeded", 3, 0)
     assert "搜索索引重建失败" in first.log  # 测试环境没有 Meilisearch
@@ -16,12 +17,14 @@ async def test_import_is_idempotent(resources_dir: Path) -> None:
 
 
 async def test_import_missing_resources_is_recorded_as_failed(tmp_path: Path) -> None:
+    """F08 F14：快照目录缺失时导入记录为失败并写明原因。"""
     run = await run_import(resources_dir=tmp_path / "missing")
     assert run.status == "failed"
     assert "找不到上游素材目录" in run.log
 
 
 async def test_browse_filters_and_cursor(client: AsyncClient) -> None:
+    """F01 F02 F09 F12：游标分页、仅有图、分类与标签筛选，卡片使用 WebP 缩略图。"""
     page = (await client.get("/cases", params={"limit": 1})).json()
     assert page["total"] == 3
     assert page["next_cursor"]
@@ -42,6 +45,7 @@ async def test_browse_filters_and_cursor(client: AsyncClient) -> None:
 
 
 async def test_search_falls_back_to_database(client: AsyncClient) -> None:
+    """F03 F02：Meilisearch 不可用时搜索与分类计数降级为数据库查询。"""
     result = (await client.get("/cases", params={"q": "blue"})).json()
     assert result["search_engine"] == "database"
     assert [item["title"] for item in result["items"]] == ["没有图的海报"]
@@ -52,6 +56,7 @@ async def test_search_falls_back_to_database(client: AsyncClient) -> None:
 
 
 async def test_detail_and_random(client: AsyncClient) -> None:
+    """F05 F07：详情含上一条/下一条与中图；随机只在筛选范围内选有图案例。"""
     first = (await client.get("/cases", params={"limit": 1})).json()["items"][0]
     detail = (await client.get(f"/cases/{first['id']}")).json()
     assert detail["prev_id"] is None and detail["next_id"]
@@ -64,6 +69,7 @@ async def test_detail_and_random(client: AsyncClient) -> None:
 
 
 async def test_admin_requires_login(client: AsyncClient) -> None:
+    """F10：后台接口需要登录，错误密码被拒绝。"""
     response = await client.get("/admin/cases")
     assert response.status_code == 401
     bad = await client.post("/auth/login", json={"username": "admin", "password": "wrong"})
@@ -71,6 +77,7 @@ async def test_admin_requires_login(client: AsyncClient) -> None:
 
 
 async def test_admin_edit_survives_reimport(admin_client: AsyncClient, resources_dir: Path) -> None:
+    """F08 F10：手工修改的字段在重新导入后保留，恢复同步后跟随上游。"""
     listing = (await admin_client.get("/admin/cases", params={"q": "红色海报"})).json()
     case_id = listing["items"][0]["id"]
 
@@ -95,6 +102,7 @@ async def test_admin_edit_survives_reimport(admin_client: AsyncClient, resources
 
 
 async def test_admin_case_crud_and_images(admin_client: AsyncClient) -> None:
+    """F10 F09 F12：案例增删改、草稿不在前台、上传校验、去重与设封面、标签。"""
     categories = (await admin_client.get("/admin/categories")).json()
     tag = (await admin_client.post("/admin/tags", json={"name": "极简", "kind": "style"})).json()
 
@@ -149,6 +157,7 @@ async def test_admin_case_crud_and_images(admin_client: AsyncClient) -> None:
 
 
 async def test_admin_categories(admin_client: AsyncClient) -> None:
+    """F10：分类新建、校验、排序与删除限制。"""
     created = (
         await admin_client.post("/admin/categories", json={"name": "测试分类", "slug": "test-cat"})
     ).json()
@@ -168,6 +177,7 @@ async def test_admin_categories(admin_client: AsyncClient) -> None:
 
 
 async def test_admin_imports_listing(admin_client: AsyncClient) -> None:
+    """F14 F11：导入记录列表与日志；搜索服务不可用时重建索引返回 503。"""
     runs = (await admin_client.get("/admin/imports")).json()
     assert runs and runs[0]["status"] == "succeeded"
     detail = (await admin_client.get(f"/admin/imports/{runs[0]['id']}")).json()

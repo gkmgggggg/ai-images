@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const shots = process.env.E2E_SCREENSHOT_DIR;
 
-test('图库：浏览、搜索、分类、详情弹窗与键盘切换', async ({ page }) => {
+test('F01 F02 F03 F04 F05 图库：浏览、搜索、分类、详情弹窗与键盘切换', async ({ page }) => {
   await page.goto('/');
   const cards = page.locator('a[aria-label^="打开案例"]');
   await expect(cards.first()).toBeVisible();
@@ -48,7 +48,7 @@ test('图库：浏览、搜索、分类、详情弹窗与键盘切换', async ({
   expect(await cards.count()).toBeLessThan(60);
 });
 
-test('直接打开案例链接显示独立页面，主题可切换为深色', async ({ page }) => {
+test('F04 F05 F13 直接打开案例链接显示独立页面，主题可切换为深色', async ({ page }) => {
   await page.goto('/cases/5');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByRole('link', { name: '返回图库' })).toBeVisible();
@@ -58,7 +58,7 @@ test('直接打开案例链接显示独立页面，主题可切换为深色', as
   await page.getByRole('radio', { name: '跟随系统' }).click();
 });
 
-test('移动端布局没有横向滚动', async ({ page }) => {
+test('N06 移动端布局没有横向滚动', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });
   await page.goto('/');
   await expect(page.locator('a[aria-label^="打开案例"]').first()).toBeVisible();

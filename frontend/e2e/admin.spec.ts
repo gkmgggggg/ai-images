@@ -11,7 +11,7 @@ const PNG = Buffer.from(
   'base64',
 );
 
-test('后台：未登录跳转、登录、新建案例、上传图片、发布、删除', async ({ page }) => {
+test('F10 F09 F14 后台：未登录跳转、登录、新建案例、上传图片、发布、删除', async ({ page }) => {
   await page.goto('/admin/tags');
   await expect(page).toHaveURL(/\/admin\/login\?next=%2Fadmin%2Ftags/);
 

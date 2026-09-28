@@ -34,7 +34,7 @@ router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(curren
 # ---------- 案例 ----------
 
 
-@router.get("/cases", response_model=AdminCasePage)
+@router.get("/cases", response_model=AdminCasePage, summary="案例列表（后台，含草稿）")
 async def list_cases(
     session: SessionDep,
     q: Annotated[str | None, Query(max_length=100)] = None,
@@ -57,27 +57,27 @@ async def list_cases(
     )
 
 
-@router.post("/cases", response_model=AdminCaseDetail, status_code=201)
+@router.post("/cases", response_model=AdminCaseDetail, status_code=201, summary="新建案例")
 async def create_case(session: SessionDep, data: CaseCreate) -> AdminCaseDetail:
     return await admin_service.create_case(session, data)
 
 
-@router.get("/cases/{case_id}", response_model=AdminCaseDetail)
+@router.get("/cases/{case_id}", response_model=AdminCaseDetail, summary="案例详情（后台）")
 async def get_case(session: SessionDep, case_id: int) -> AdminCaseDetail:
     return await admin_service.get_case(session, case_id)
 
 
-@router.patch("/cases/{case_id}", response_model=AdminCaseDetail)
+@router.patch("/cases/{case_id}", response_model=AdminCaseDetail, summary="修改案例")
 async def update_case(session: SessionDep, case_id: int, data: CaseUpdate) -> AdminCaseDetail:
     return await admin_service.update_case(session, case_id, data)
 
 
-@router.delete("/cases/{case_id}", status_code=204)
+@router.delete("/cases/{case_id}", status_code=204, summary="删除案例")
 async def delete_case(session: SessionDep, case_id: int) -> None:
     await admin_service.delete_case(session, case_id)
 
 
-@router.post("/cases/{case_id}/images", response_model=AdminCaseDetail, status_code=201)
+@router.post("/cases/{case_id}/images", response_model=AdminCaseDetail, status_code=201, summary="上传图片")
 async def upload_image(
     session: SessionDep, case_id: int, file: Annotated[UploadFile, File()]
 ) -> AdminCaseDetail:
@@ -90,12 +90,12 @@ async def upload_image(
     return await admin_service.add_image(session, case_id, data)
 
 
-@router.delete("/cases/{case_id}/images/{image_id}", response_model=AdminCaseDetail)
+@router.delete("/cases/{case_id}/images/{image_id}", response_model=AdminCaseDetail, summary="删除图片")
 async def delete_image(session: SessionDep, case_id: int, image_id: int) -> AdminCaseDetail:
     return await admin_service.delete_image(session, case_id, image_id)
 
 
-@router.post("/cases/{case_id}/images/{image_id}/cover", response_model=AdminCaseDetail)
+@router.post("/cases/{case_id}/images/{image_id}/cover", response_model=AdminCaseDetail, summary="设为封面")
 async def set_cover(session: SessionDep, case_id: int, image_id: int) -> AdminCaseDetail:
     return await admin_service.set_cover(session, case_id, image_id)
 
@@ -103,27 +103,27 @@ async def set_cover(session: SessionDep, case_id: int, image_id: int) -> AdminCa
 # ---------- 分类 ----------
 
 
-@router.get("/categories", response_model=list[AdminCategory])
+@router.get("/categories", response_model=list[AdminCategory], summary="分类列表")
 async def list_categories(session: SessionDep) -> list[AdminCategory]:
     return await admin_service.list_categories(session)
 
 
-@router.post("/categories", response_model=AdminCategory, status_code=201)
+@router.post("/categories", response_model=AdminCategory, status_code=201, summary="新建分类")
 async def create_category(session: SessionDep, data: CategoryCreate) -> AdminCategory:
     return await admin_service.create_category(session, data)
 
 
-@router.put("/categories/order", status_code=204)
+@router.put("/categories/order", status_code=204, summary="调整分类顺序")
 async def reorder_categories(session: SessionDep, data: CategoryOrder) -> None:
     await admin_service.reorder_categories(session, data.ids)
 
 
-@router.patch("/categories/{category_id}", status_code=204)
+@router.patch("/categories/{category_id}", status_code=204, summary="修改分类")
 async def update_category(session: SessionDep, category_id: int, data: CategoryUpdate) -> None:
     await admin_service.update_category(session, category_id, data)
 
 
-@router.delete("/categories/{category_id}", status_code=204)
+@router.delete("/categories/{category_id}", status_code=204, summary="删除分类")
 async def delete_category(session: SessionDep, category_id: int) -> None:
     await admin_service.delete_category(session, category_id)
 
@@ -131,22 +131,22 @@ async def delete_category(session: SessionDep, category_id: int) -> None:
 # ---------- 标签 ----------
 
 
-@router.get("/tags", response_model=list[TagCount])
+@router.get("/tags", response_model=list[TagCount], summary="标签列表")
 async def list_tags(session: SessionDep) -> list[TagCount]:
     return await admin_service.list_tags(session)
 
 
-@router.post("/tags", response_model=TagCount, status_code=201)
+@router.post("/tags", response_model=TagCount, status_code=201, summary="新建标签")
 async def create_tag(session: SessionDep, data: TagCreate) -> TagCount:
     return await admin_service.create_tag(session, data)
 
 
-@router.patch("/tags/{tag_id}", status_code=204)
+@router.patch("/tags/{tag_id}", status_code=204, summary="修改标签")
 async def update_tag(session: SessionDep, tag_id: int, data: TagUpdate) -> None:
     await admin_service.update_tag(session, tag_id, data)
 
 
-@router.delete("/tags/{tag_id}", status_code=204)
+@router.delete("/tags/{tag_id}", status_code=204, summary="删除标签")
 async def delete_tag(session: SessionDep, tag_id: int) -> None:
     await admin_service.delete_tag(session, tag_id)
 
@@ -154,7 +154,7 @@ async def delete_tag(session: SessionDep, tag_id: int) -> None:
 # ---------- 导入与索引 ----------
 
 
-@router.post("/imports", response_model=TaskAccepted, status_code=202)
+@router.post("/imports", response_model=TaskAccepted, status_code=202, summary="触发导入上游快照")
 async def trigger_import(session: SessionDep, background: BackgroundTasks) -> TaskAccepted:
     try:
         run = await start_run(session, trigger="admin")
@@ -164,14 +164,14 @@ async def trigger_import(session: SessionDep, background: BackgroundTasks) -> Ta
     return TaskAccepted(message="导入任务已开始", import_run_id=run.id)
 
 
-@router.get("/imports", response_model=list[ImportRunOut])
+@router.get("/imports", response_model=list[ImportRunOut], summary="导入记录")
 async def list_imports(
     session: SessionDep, limit: Annotated[int, Query(ge=1, le=100)] = 30
 ) -> list[ImportRun]:
     return list((await session.scalars(select(ImportRun).order_by(ImportRun.id.desc()).limit(limit))).all())
 
 
-@router.get("/imports/{run_id}", response_model=ImportRunDetail)
+@router.get("/imports/{run_id}", response_model=ImportRunDetail, summary="导入记录详情与日志")
 async def get_import(session: SessionDep, run_id: int) -> ImportRun:
     run = await session.get(ImportRun, run_id)
     if run is None:
@@ -179,7 +179,7 @@ async def get_import(session: SessionDep, run_id: int) -> ImportRun:
     return run
 
 
-@router.post("/search/reindex", response_model=TaskAccepted)
+@router.post("/search/reindex", response_model=TaskAccepted, summary="重建搜索索引")
 async def reindex(session: SessionDep) -> TaskAccepted:
     try:
         count = await search_index.reindex_all(session)

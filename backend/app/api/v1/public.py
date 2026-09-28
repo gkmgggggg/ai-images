@@ -18,44 +18,44 @@ KeywordQuery = Annotated[str | None, Query(max_length=100, description="搜索�
 TagQuery = Annotated[int | None, Query(alias="tag", description="标签 id")]
 
 
-@router.get("/cases", response_model=CasePage)
+@router.get("/cases", response_model=CasePage, summary="案例列表：浏览与搜索")
 async def list_cases(
     session: SessionDep,
     category: CategoryQuery = None,
     q: KeywordQuery = None,
-    has_image: bool = False,
+    has_image: Annotated[bool, Query(description="只返回有图片的案例")] = False,
     tag_id: TagQuery = None,
-    cursor: str | None = None,
-    limit: Annotated[int, Query(ge=1, le=60)] = 24,
+    cursor: Annotated[str | None, Query(description="上一页返回的 next_cursor")] = None,
+    limit: Annotated[int, Query(ge=1, le=60, description="每页条数")] = 24,
 ) -> CasePage:
     return await case_service.list_cases(
         session, category=category, q=q, has_image=has_image, tag_id=tag_id, cursor=cursor, limit=limit
     )
 
 
-@router.get("/cases/random", response_model=RandomCase)
+@router.get("/cases/random", response_model=RandomCase, summary="随机案例")
 async def random_case(
     session: SessionDep, category: CategoryQuery = None, q: KeywordQuery = None, tag_id: TagQuery = None
 ) -> RandomCase:
     return RandomCase(id=await case_service.random_case_id(session, category=category, q=q, tag_id=tag_id))
 
 
-@router.get("/cases/{case_id}", response_model=CaseDetail)
+@router.get("/cases/{case_id}", response_model=CaseDetail, summary="案例详情")
 async def get_case(session: SessionDep, case_id: int) -> CaseDetail:
     return await case_service.get_case_detail(session, case_id)
 
 
-@router.get("/categories", response_model=CategoriesOut)
+@router.get("/categories", response_model=CategoriesOut, summary="分类及计数")
 async def categories(session: SessionDep, q: KeywordQuery = None, tag_id: TagQuery = None) -> CategoriesOut:
     return await case_service.category_counts(session, q=q, tag_id=tag_id)
 
 
-@router.get("/tags", response_model=list[TagCount])
+@router.get("/tags", response_model=list[TagCount], summary="标签及案例数")
 async def tags(session: SessionDep) -> list[TagCount]:
     return await case_service.tag_counts(session)
 
 
-@router.get("/meta", response_model=MetaOut)
+@router.get("/meta", response_model=MetaOut, summary="站点统计与上游信息")
 async def meta(session: SessionDep) -> MetaOut:
     counts = await case_service.category_counts(session, q=None, tag_id=None)
     categories_total = await session.scalar(select(func.count()).select_from(Category)) or 0
@@ -73,7 +73,7 @@ async def meta(session: SessionDep) -> MetaOut:
     )
 
 
-@router.get("/healthz")
+@router.get("/healthz", summary="健康检查")
 async def healthz(session: SessionDep) -> dict:
     await session.scalar(select(func.count()).select_from(Case).limit(1))
     return {"status": "ok", "database": "ok", "search": "ok" if await search_index.is_available() else "down"}
