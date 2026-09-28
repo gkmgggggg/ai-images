@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --paper: #f7f7f4;
+  --panel: #ffffff;
+  --ink: #171717;
+  --muted: #676760;
+  --line: #deddd5;
+  --acid: #ccf14a;
+  --acid-ink: #171717;
+  --coral: #e5483a;
+  --mark: #fde68a;
+  --grid-line: rgba(23, 23, 23, 0.035);
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #121211;
+  --panel: #1b1b19;
+  --ink: #f1f0ea;
+  --muted: #a3a29a;
+  --line: #34332f;
+  --acid: #c4e84a;
+  --acid-ink: #121211;
+  --coral: #ff6b5c;
+  --mark: #6b5a10;
+  --grid-line: rgba(241, 240, 234, 0.035);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: 'Avenir Next', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-serif: Georgia, 'Songti SC', 'Times New Roman', serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-acid: var(--acid);
+  --color-acid-ink: var(--acid-ink);
+  --color-coral: var(--coral);
+  --color-mark: var(--mark);
+  --shadow-hard: 4px 4px 0 var(--ink);
+  --shadow-hard-sm: 2px 2px 0 var(--ink);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    background:
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(0deg, var(--grid-line) 1px, transparent 1px),
+      var(--paper);
+    background-size: 36px 36px;
+    text-rendering: optimizeLegibility;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  mark {
+    background: var(--mark);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--line) 25%, color-mix(in oklab, var(--line) 40%, var(--panel)) 50%, var(--line) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

@@ -1,0 +1,64 @@
+# 生产部署（阿里云 ECS）：cp .env.example .env，填好密钥后 docker compose up -d --build
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ai_images
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请在 .env 中设置 POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atlas -d ai_images"]
+      interval: 5s
+      retries: 10
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.53.1
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:?请在 .env 中设置 MEILI_MASTER_KEY}
+      MEILI_ENV: production
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meili_data:/meili_data
+    # 只在内部网络可达，不暴露端口
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      ATLAS_DATABASE_URL: postgresql+asyncpg://atlas:${POSTGRES_PASSWORD}@postgres:5432/ai_images
+      ATLAS_MEILI_URL: http://meilisearch:7700
+      ATLAS_MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      ATLAS_JWT_SECRET: ${JWT_SECRET:?请在 .env 中设置 JWT_SECRET}
+      ATLAS_COOKIE_SECURE: ${COOKIE_SECURE:-true}
+    volumes:
+      - media:/data/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      meilisearch:
+        condition: service_started
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - media:/data/media:ro
+      # - ./deploy/certs:/etc/nginx/certs:ro
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  meili_data:
+  media:
