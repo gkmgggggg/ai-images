@@ -27,7 +27,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(
         title="AI 图集 API",
-        version="0.1.0",
+        version="0.2.0",
         lifespan=lifespan,
         docs_url=None if settings.is_production else "/api/docs",
         openapi_url=None if settings.is_production else "/api/openapi.json",
