@@ -1,7 +1,7 @@
 ---
 title: 测试
 status: active
-updated: 2026-09-28
+updated: 2026-09-29
 ---
 
 # 测试
@@ -15,9 +15,11 @@ updated: 2026-09-28
 | 后端 | `cd backend && uv run pytest` | 存在 `ai_images_test` 库（会被清空重建） | 约 1 秒 |
 | 后端搜索集成 | `ATLAS_TEST_MEILI_URL=http://127.0.0.1:7700 ATLAS_TEST_MEILI_KEY=… uv run pytest tests/test_search_live.py` | 本机运行 Meilisearch；未设置时自动跳过 | 约 2 秒 |
 | 前端单元 | `cd frontend && pnpm test` | — | 约 1 秒 |
-| 端到端 | `cd frontend && pnpm test:e2e` | 前后端已启动并导入数据；管理员账号通过 `E2E_ADMIN_USER`、`E2E_ADMIN_PASSWORD` 提供；默认使用本机 Chrome | 约 5 秒 |
+| 端到端 | `cd frontend && pnpm test:e2e` | 前后端已启动并导入数据；管理员账号通过 `E2E_ADMIN_USER`、`E2E_ADMIN_PASSWORD` 提供；默认使用本机 Chrome | 约 12 秒 |
 
 `make check` 运行后端测试、前端单元测试和文档检查；后端搜索集成测试和端到端测试依赖本地服务，目前手动运行。
+
+端到端测试设置 `E2E_SCREENSHOT_DIR=<目录>` 时，会把关键页面截图保存到该目录（图库、搜索、详情弹窗、筛选面板、吸顶栏、深浅主题、320/375 px 窄屏、后台），便于改动视觉后人工核对。
 
 ## 写测试的约定
 

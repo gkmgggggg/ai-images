@@ -21,3 +21,4 @@ ADR 记录「为什么这样选」：每个影响技术选型、跨模块约定�
 | [0007](0007-frontend-toolchain-versions.md) | 前端工具链：Vite 8、TypeScript 6，接口类型由 OpenAPI 生成 | accepted |
 | [0008](0008-single-host-docker-compose.md) | 生产环境为单台阿里云 ECS 上的 Docker Compose | accepted |
 | [0009](0009-documentation-driven-development.md) | 采用文档驱动开发 | accepted |
+| [0010](0010-frontend-visual-system.md) | 前端视觉系统：暗色沉浸风格、语义化设计令牌、系统字体与自己实现瀑布流 | accepted |

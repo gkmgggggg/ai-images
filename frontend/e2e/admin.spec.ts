@@ -11,7 +11,7 @@ const PNG = Buffer.from(
   'base64',
 );
 
-test('F10 F09 F14 后台：未登录跳转、登录、新建案例、上传图片、发布、删除', async ({ page }) => {
+test('F10 F09 F14 N06 后台：未登录跳转、登录、新建案例、上传图片、发布、删除', async ({ page }) => {
   await page.goto('/admin/tags');
   await expect(page).toHaveURL(/\/admin\/login\?next=%2Fadmin%2Ftags/);
 
@@ -68,4 +68,13 @@ test('F10 F09 F14 后台：未登录跳转、登录、新建案例、上传图�
   await page.getByRole('link', { name: '导入与索引' }).click();
   await expect(page.getByText('搜索服务：')).toBeVisible();
   await expect(page.locator('tbody tr').first()).toBeVisible();
+
+  // 窄屏下案例列表没有横向滚动
+  for (const width of [320, 375]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/admin/cases');
+    await expect(page.locator('tbody tr').first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    if (shots) await page.screenshot({ path: `${shots}/admin-cases-${width}.png` });
+  }
 });

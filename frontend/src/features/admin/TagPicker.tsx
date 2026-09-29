@@ -29,7 +29,7 @@ export function TagPicker({ value, onChange }: { value: number[]; onChange: (ids
       {groups.length === 0 && <p className="text-sm text-muted">还没有标签，可以在下方新建。</p>}
       {groups.map(([groupKind, list]) => (
         <div key={groupKind} className="flex flex-wrap items-center gap-1.5">
-          <span className="w-10 text-xs text-muted">{TAG_KIND_LABELS[groupKind] ?? groupKind}</span>
+          <span className="w-10 text-xs text-muted">{TAG_KIND_LABELS[groupKind as TagCount['kind']] ?? groupKind}</span>
           {list?.map((tag) => {
             const selected = value.includes(tag.id);
             return (
@@ -39,8 +39,8 @@ export function TagPicker({ value, onChange }: { value: number[]; onChange: (ids
                 aria-pressed={selected}
                 onClick={() => toggle(tag.id)}
                 className={cn(
-                  'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold',
-                  selected ? 'border-ink bg-acid text-acid-ink' : 'border-line bg-panel text-muted hover:border-ink',
+                  'inline-flex h-7 items-center gap-1 rounded-full border px-2.5 text-xs font-semibold transition-colors',
+                  selected ? 'border-accent bg-accent text-accent-fg' : 'border-border text-muted hover:border-fg hover:text-fg',
                 )}
               >
                 {selected && <Check className="size-3" />}
@@ -50,7 +50,7 @@ export function TagPicker({ value, onChange }: { value: number[]; onChange: (ids
           })}
         </div>
       ))}
-      <div className="flex flex-wrap gap-2 border-t border-line pt-3">
+      <div className="flex flex-wrap gap-2 border-t border-border pt-3">
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}

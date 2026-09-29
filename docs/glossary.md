@@ -1,7 +1,7 @@
 ---
 title: 术语表
 status: active
-updated: 2026-09-28
+updated: 2026-09-29
 ---
 
 # 术语表
@@ -27,3 +27,7 @@ updated: 2026-09-28
 | 降级 | Meilisearch 不可用时改用数据库 ILIKE 查询 | `search_engine = "database"` |
 | 导入记录 | 一次导入的执行结果与日志 | `ImportRun` |
 | 基线需求 | 引入文档驱动流程前已实现的 F01–F14 | — |
+| 设计令牌 | 前端的语义化 CSS 变量（如 `--bg`、`--accent`），深浅两套，组件只通过令牌取色 | `frontend/src/index.css` |
+| 瀑布流 | 图库按缩略图宽高比排版、每张卡片放进最短一列的布局 | `computeMasonryLayout`、`MasonryGrid` |
+| 吸顶栏 | 图库顶部固定的搜索、随机、主题与分类栏 | `GalleryHeader` |
+| 筛选面板 | 吸顶栏「筛选」按钮打开的标签与「仅有图」设置，窄屏为底部抽屉 | `FilterPanel` |

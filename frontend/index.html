@@ -1,18 +1,21 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="AI 图集：浏览 AI 生成图片案例，一键复制提示词。" />
+    <meta name="theme-color" content="#070708" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>AI 图集</title>
     <script>
-      // 在首帧之前应用主题，避免暗色模式闪白
+      // 在首帧之前应用主题，避免闪烁；没有保存过偏好时默认深色（F13）
       (function () {
         try {
-          var pref = localStorage.getItem('atlas-theme') || 'system';
+          var pref = localStorage.getItem('atlas-theme');
+          if (pref !== 'light' && pref !== 'dark' && pref !== 'system') pref = 'dark';
           var dark = pref === 'dark' || (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
           document.documentElement.classList.toggle('dark', dark);
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#070708' : '#ecebe7');
         } catch (e) {}
       })();
     </script>

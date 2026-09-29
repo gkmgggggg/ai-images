@@ -3,6 +3,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 export type ThemePreference = 'system' | 'light' | 'dark';
 
 const STORAGE_KEY = 'atlas-theme';
+/** 没有保存过偏好时的默认主题（F13）；index.html 的首帧脚本与此保持一致。 */
+export const DEFAULT_PREFERENCE: ThemePreference = 'dark';
+/** 窄屏主题按钮的循环顺序。 */
+export const THEME_CYCLE: ThemePreference[] = ['dark', 'light', 'system'];
+const THEME_COLORS = { light: '#ecebe7', dark: '#070708' } as const;
 
 interface ThemeContextValue {
   preference: ThemePreference;
@@ -12,12 +17,12 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-function readPreference(): ThemePreference {
+export function readPreference(): ThemePreference {
   try {
     const value = localStorage.getItem(STORAGE_KEY);
-    return value === 'light' || value === 'dark' ? value : 'system';
+    return value === 'light' || value === 'dark' || value === 'system' ? value : DEFAULT_PREFERENCE;
   } catch {
-    return 'system';
+    return DEFAULT_PREFERENCE;
   }
 }
 
@@ -41,6 +46,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', resolved === 'dark');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[resolved]);
   }, [resolved]);
 
   const setPreference = useCallback((value: ThemePreference) => {

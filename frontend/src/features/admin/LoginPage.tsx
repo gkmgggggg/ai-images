@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
-import { LogIn, Sparkles } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -48,12 +48,10 @@ export function LoginPage() {
       <form
         onSubmit={onSubmit}
         noValidate
-        className="flex w-full max-w-sm flex-col gap-4 rounded-xl border border-ink bg-panel p-6 shadow-hard"
+        className="flex w-full max-w-sm flex-col gap-4 rounded-modal border border-border bg-surface p-7 shadow-[0_40px_100px_-30px_rgba(0,0,0,.6)]"
       >
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-lg border border-ink bg-acid text-acid-ink">
-            <Sparkles className="size-5" />
-          </span>
+          <span aria-hidden className="logo-orb mx-1" />
           <div>
             <h1 className="text-lg font-bold">管理员登录</h1>
             <p className="text-xs text-muted">AI 图集后台</p>
@@ -76,7 +74,7 @@ export function LoginPage() {
           <FieldError message={errors.password?.message} />
         </div>
         <FieldError message={serverError} />
-        <Button type="submit" variant="default" size="lg" disabled={isSubmitting}>
+        <Button type="submit" variant="accent" size="lg" disabled={isSubmitting}>
           <LogIn /> {isSubmitting ? '登录中…' : '登录'}
         </Button>
         <p className="text-xs text-muted">管理员账号通过命令行创建：uv run atlas create-admin &lt;用户名&gt;</p>

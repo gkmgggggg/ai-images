@@ -4,16 +4,16 @@ import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold whitespace-nowrap',
+  'inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-xs font-semibold whitespace-nowrap',
   {
     variants: {
       variant: {
-        default: 'border-line bg-panel text-muted',
-        ink: 'border-ink bg-ink text-paper',
-        accent: 'border-ink bg-acid text-acid-ink',
-        warning: 'border-amber-500/40 bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100',
-        danger: 'border-coral/40 bg-coral/10 text-coral',
-        success: 'border-emerald-600/30 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200',
+        default: 'bg-fg/[0.07] text-muted',
+        outline: 'border border-border text-muted',
+        accent: 'bg-accent text-accent-fg',
+        success: 'bg-success/15 text-success',
+        warning: 'bg-warning/15 text-warning',
+        danger: 'bg-danger/15 text-danger',
       },
     },
     defaultVariants: { variant: 'default' },

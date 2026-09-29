@@ -4,15 +4,17 @@ import type { ButtonHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 export const buttonVariants = cva(
-  'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg border text-sm font-semibold transition-[transform,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex shrink-0 items-center justify-center gap-2 rounded-full border text-sm font-semibold whitespace-nowrap transition-[background-color,border-color,color,box-shadow] disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        default: 'border-ink bg-ink text-paper hover:-translate-y-px',
-        accent: 'border-ink bg-acid text-acid-ink shadow-hard-sm hover:-translate-y-px hover:shadow-hard',
-        outline: 'border-ink bg-panel text-ink hover:-translate-y-px hover:shadow-hard-sm',
-        ghost: 'border-transparent bg-transparent text-ink hover:bg-line/60',
-        danger: 'border-coral bg-panel text-coral hover:bg-coral hover:text-white',
+        default: 'border-fg bg-fg text-bg hover:opacity-90',
+        accent:
+          'border-accent bg-accent text-accent-fg shadow-[0_0_26px_-6px_var(--accent)] hover:shadow-[0_0_32px_-4px_var(--accent)]',
+        outline: 'border-border bg-surface text-fg hover:border-fg',
+        subtle: 'border-transparent bg-fg/[0.07] text-fg hover:bg-fg/[0.12]',
+        ghost: 'border-transparent bg-transparent text-fg hover:bg-surface-2',
+        danger: 'border-danger/40 bg-transparent text-danger hover:border-danger hover:bg-danger/10',
       },
       size: {
         sm: 'h-8 px-3 text-xs',

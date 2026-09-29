@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { formatDateTime } from '@/lib/utils';
 
-import { PageHeader, Panel, useAdminMutation } from './shared';
+import { DataTable, PageHeader, Panel, useAdminMutation } from './shared';
 
 const STATUS: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' }> = {
   succeeded: { label: '成功', variant: 'success' },
@@ -78,52 +78,43 @@ export function ImportsPage() {
         </span>
       </Panel>
 
-      <Panel className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="border-b border-line text-xs text-muted">
-            <tr>
-              <th className="px-4 py-3 font-semibold">#</th>
-              <th className="px-4 py-3 font-semibold">状态</th>
-              <th className="px-4 py-3 font-semibold">触发</th>
-              <th className="px-4 py-3 font-semibold">上游 commit</th>
-              <th className="px-4 py-3 font-semibold">开始时间</th>
-              <th className="px-4 py-3 font-semibold">耗时</th>
-              <th className="px-4 py-3 font-semibold">新增 / 更新 / 未变 / 失败</th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody>
+      <DataTable
+        className="min-w-[720px]"
+        columns={[
+          { label: '#' },
+          { label: '状态' },
+          { label: '触发' },
+          { label: '上游 commit' },
+          { label: '开始时间' },
+          { label: '耗时' },
+          { label: '新增 / 更新 / 未变 / 失败' },
+          { label: <span className="sr-only">操作</span> },
+        ]}
+        loading={runs.isPending}
+        empty={runs.data?.length === 0 && '还没有导入记录'}
+      >
             {runs.data?.map((run) => (
-              <tr key={run.id} className="border-b border-line last:border-0">
-                <td className="px-4 py-2.5">{run.id}</td>
-                <td className="px-4 py-2.5">
+              <tr key={run.id}>
+                <td>{run.id}</td>
+                <td>
                   <Badge variant={STATUS[run.status]?.variant}>{STATUS[run.status]?.label ?? run.status}</Badge>
                 </td>
-                <td className="px-4 py-2.5">{run.trigger === 'admin' ? '后台' : '命令行'}</td>
-                <td className="px-4 py-2.5 font-mono text-xs">{run.upstream_commit.slice(0, 7) || '—'}</td>
-                <td className="px-4 py-2.5 text-xs whitespace-nowrap">{formatDateTime(run.started_at)}</td>
-                <td className="px-4 py-2.5 text-xs">{duration(run)}</td>
-                <td className="px-4 py-2.5">
+                <td>{run.trigger === 'admin' ? '后台' : '命令行'}</td>
+                <td className="font-mono text-xs">{run.upstream_commit.slice(0, 7) || '—'}</td>
+                <td className="text-xs whitespace-nowrap">{formatDateTime(run.started_at)}</td>
+                <td className="text-xs">{duration(run)}</td>
+                <td>
                   {run.created} / {run.updated} / {run.skipped} /{' '}
-                  <span className={run.failed ? 'font-bold text-coral' : ''}>{run.failed}</span>
+                  <span className={run.failed ? 'font-bold text-danger' : ''}>{run.failed}</span>
                 </td>
-                <td className="px-4 py-2.5 text-right">
+                <td className="text-right">
                   <Button size="sm" variant="ghost" onClick={() => setOpenId(run.id)}>
                     查看日志
                   </Button>
                 </td>
               </tr>
             ))}
-            {runs.data?.length === 0 && (
-              <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-muted">
-                  还没有导入记录
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </Panel>
+      </DataTable>
 
       {openId !== null && <ImportLogDialog id={openId} onClose={() => setOpenId(null)} />}
     </>
@@ -137,7 +128,7 @@ function ImportLogDialog({ id, onClose }: { id: number; onClose: () => void }) {
       <DialogContent className="h-fit max-w-3xl" aria-describedby={undefined}>
         <div className="flex max-h-[80vh] flex-col gap-3 p-6">
           <DialogTitle className="pr-12 text-lg font-bold">导入 #{id} 日志</DialogTitle>
-          <pre className="min-h-40 overflow-auto rounded-lg border border-line bg-paper p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap">
+          <pre className="min-h-40 overflow-auto rounded-card border border-border bg-fg/[0.04] p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap">
             {detail.data?.log || (detail.isPending ? '加载中…' : '（无日志）')}
           </pre>
         </div>

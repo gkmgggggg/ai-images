@@ -5,9 +5,8 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { CaseDetail } from '@/api/endpoints';
 import { Highlighted, stripMarks } from '@/components/Highlighted';
-import { JsonText, PromptBlock } from '@/features/case-detail/PromptBlock';
+import { JsonText, PromptBlock, usePrompt } from '@/features/case-detail/PromptBlock';
 import { useGalleryParams } from '@/features/gallery/useGalleryParams';
-import { columnsFor } from '@/features/gallery/VirtualGrid';
 
 vi.mock('sonner', () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }) }));
 
@@ -34,15 +33,6 @@ describe('F05 JsonText JSON 着色', () => {
   it('非法 JSON 原样输出', () => {
     const { container } = render(<JsonText text="{oops" />);
     expect(container.textContent).toBe('{oops');
-  });
-});
-
-describe('F01 columnsFor 网格列数', () => {
-  it('按容器宽度决定列数', () => {
-    expect(columnsFor(320)).toBe(1);
-    expect(columnsFor(400)).toBe(2);
-    expect(columnsFor(900)).toBe(3);
-    expect(columnsFor(1400)).toBe(4);
   });
 });
 
@@ -82,13 +72,17 @@ const detail: CaseDetail = {
   updated_at: '2026-01-01T00:00:00Z',
 };
 
+function PromptHarness({ item }: { item: CaseDetail }) {
+  return <PromptBlock prompt={usePrompt(item)} />;
+}
+
 describe('F05 F06 PromptBlock 语言切换与复制', () => {
   it('双语提示词可以切换语言，并复制当前语言', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(window, 'isSecureContext', { value: true, configurable: true });
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
 
-    render(<PromptBlock item={detail} />);
+    render(<PromptHarness item={detail} />);
     expect(screen.getByRole('tab', { name: '中文' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('一只猫')).toBeInTheDocument();
 

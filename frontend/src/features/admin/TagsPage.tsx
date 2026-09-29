@@ -7,7 +7,7 @@ import { adminApi, type TagCount, type TagCreate } from '@/api/endpoints';
 import { Button } from '@/components/ui/button';
 import { Input, Select } from '@/components/ui/form-controls';
 
-import { PageHeader, Panel, TAG_KIND_LABELS, useAdminMutation } from './shared';
+import { DataTable, PageHeader, Panel, TAG_KIND_LABELS, useAdminMutation } from './shared';
 
 type Kind = TagCreate['kind'];
 
@@ -55,28 +55,14 @@ export function TagsPage() {
           </Button>
         </form>
       </Panel>
-      <Panel className="overflow-x-auto">
-        <table className="w-full min-w-[560px] text-left text-sm">
-          <thead className="border-b border-line text-xs text-muted">
-            <tr>
-              <th className="px-4 py-3 font-semibold">名称</th>
-              <th className="px-4 py-3 font-semibold">类型</th>
-              <th className="px-4 py-3 font-semibold">案例数</th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody>
-            {tags.data?.map((tag) => <TagRow key={tag.id} tag={tag} />)}
-            {tags.data?.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-10 text-center text-muted">
-                  还没有标签
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </Panel>
+      <DataTable
+        className="min-w-[560px]"
+        columns={[{ label: '名称' }, { label: '类型' }, { label: '案例数' }, { label: <span className="sr-only">操作</span> }]}
+        loading={tags.isPending}
+        empty={tags.data?.length === 0 && '还没有标签'}
+      >
+        {tags.data?.map((tag) => <TagRow key={tag.id} tag={tag} />)}
+      </DataTable>
     </>
   );
 }
@@ -92,19 +78,19 @@ function TagRow({ tag }: { tag: TagCount }) {
   const remove = useAdminMutation(() => adminApi.deleteTag(tag.id), { success: '标签已删除' });
 
   return (
-    <tr className="border-b border-line last:border-0">
-      <td className="px-4 py-2">
+    <tr>
+      <td>
         {editing ? <Input value={name} onChange={(e) => setName(e.target.value)} className="h-8" aria-label="名称" /> : tag.name}
       </td>
-      <td className="px-4 py-2">
+      <td>
         {editing ? <KindSelect value={kind} onChange={setKind} className="h-8 w-28" /> : TAG_KIND_LABELS[tag.kind]}
       </td>
-      <td className="px-4 py-2">
+      <td>
         <Link to={`/?tag=${tag.id}&all=1`} target="_blank" className="hover:underline">
           {tag.count}
         </Link>
       </td>
-      <td className="px-4 py-2 text-right whitespace-nowrap">
+      <td className="text-right whitespace-nowrap">
         {editing ? (
           <>
             <Button size="icon-sm" variant="ghost" aria-label="保存" disabled={!name.trim() || save.isPending} onClick={() => save.mutate(undefined)}>
@@ -138,7 +124,7 @@ function TagRow({ tag }: { tag: TagCount }) {
                 remove.mutate(undefined)
               }
             >
-              <Trash2 className="text-coral" />
+              <Trash2 className="text-danger" />
             </Button>
           </>
         )}

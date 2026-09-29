@@ -22,14 +22,15 @@ export function CaseDialog() {
 
   return (
     <Dialog open onOpenChange={(open) => !open && close()}>
-      <DialogContent className="max-w-6xl" aria-describedby={undefined}>
+      {/* 窄屏由弹窗自身滚动，底部操作栏相对它吸底；宽屏左右两栏各自滚动 */}
+      <DialogContent className="max-md:overflow-y-auto md:inset-7 md:mx-auto md:max-h-[calc(100dvh-3.5rem)] md:max-w-[1220px]" aria-describedby={undefined}>
         {detail.data ? (
           <>
             <DialogTitle className="sr-only">{detail.data.title}</DialogTitle>
             <CaseDetailView item={detail.data} prevId={prevId} nextId={nextId} onNavigate={goTo} />
           </>
         ) : detail.isError ? (
-          <div className="grid flex-1 place-items-center p-10 text-center">
+          <div className="grid flex-1 place-content-center gap-2 p-10 text-center">
             <DialogTitle className="text-lg font-bold">案例不存在或已下线</DialogTitle>
             <DialogDescription className="text-sm text-muted">{(detail.error as Error).message}</DialogDescription>
           </div>

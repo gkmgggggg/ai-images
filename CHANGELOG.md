@@ -12,11 +12,14 @@
 
 ### 变更
 
+- 前端改版为「暗色沉浸」风格（规格 0002、ADR-0010）：默认深色，颜色统一改用语义化设计令牌；图库改为按原图比例排列的瀑布流（F01），左侧栏换成顶部吸顶栏，标签与「仅有图」收进筛选面板（F02、F12）；按 `/` 聚焦搜索框（F03）；窄屏详情底部固定复制操作栏（F05、F06）；后台同步换新样式并拆分大组件（F10）
+- 新增依赖 `@radix-ui/react-popover`，移除 `@tanstack/react-virtual`
 - 需求与架构初稿移入 `docs/archive/`，现行需求以 `docs/product/requirements.md` 为准
 - README 精简为快速上手，详细内容移入 `docs/guides/`
 
 ### 修复
 
+- 宽屏下分类栏只显示一行、鼠标无法横向滚动，后面的分类点不到：改为 ≥ 640 px 时换行显示全部分类，窄屏保留横向滑动（F02）
 - 部署的网页入口默认改为宿主机 8080（可用 `.env` 的 `WEB_BIND` 调整），避免与宿主机已有 Nginx 的 80 端口冲突；未配置 HTTPS 时不发布容器 443
 - 用 `package.json` 的 `packageManager` 固定 pnpm 10.33.0，Docker、CI 与本地统一版本，修复 Docker 中 Corepack 自动选用最新 pnpm 后报 `ERR_PNPM_IGNORED_BUILDS` 导致的镜像构建失败；新增 `pnpm-workspace.yaml` 用 `allowBuilds` 明确允许 esbuild 安装脚本
 

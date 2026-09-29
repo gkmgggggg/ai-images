@@ -52,9 +52,9 @@ function NotFound() {
   return (
     <main className="grid min-h-screen place-items-center text-center">
       <div>
-        <p className="font-serif text-6xl font-bold">404</p>
+        <p className="font-label text-7xl font-semibold tracking-wider text-accent">404</p>
         <p className="mt-2 text-muted">页面不存在</p>
-        <Link to="/" className="mt-4 inline-block text-sm underline">
+        <Link to="/" className="mt-4 inline-block text-sm underline underline-offset-4 hover:text-accent">
           回到图库
         </Link>
       </div>

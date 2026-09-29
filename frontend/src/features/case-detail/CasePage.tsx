@@ -2,7 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeCycleButton, ThemeToggle } from '@/components/ThemeToggle';
 
 import { CaseDetailSkeleton, CaseDetailView } from './CaseDetailView';
 import { useAdjacentCases, useArrowKeys, useCaseDetail } from './useCaseNavigation';
@@ -25,16 +25,18 @@ export function CasePage() {
   }, [detail.data]);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-4 px-4 py-5 sm:px-6">
-      <div className="flex items-center justify-between">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold hover:underline">
+    <main className="mx-auto flex min-h-dvh max-w-[1280px] flex-col gap-3 sm:gap-4 sm:px-6 sm:py-5 md:h-dvh md:min-h-0">
+      <div className="flex items-center justify-between px-4 pt-3 sm:px-0 sm:pt-0">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:text-accent">
           <ArrowLeft className="size-4" /> 返回图库
         </Link>
-        <ThemeToggle />
+        <ThemeToggle className="max-sm:hidden" />
+        <ThemeCycleButton className="sm:hidden" />
       </div>
-      <div className="flex min-h-[70vh] flex-col overflow-hidden rounded-xl border border-ink bg-panel md:h-[calc(100dvh-7rem)]">
+      {/* 窄屏不能用 overflow-hidden，否则底部操作栏无法相对视口吸底 */}
+      <div className="flex flex-1 flex-col overflow-clip bg-surface sm:rounded-modal sm:border sm:border-border md:min-h-0 md:overflow-hidden">
         {detail.data ? (
-          <CaseDetailView item={detail.data} prevId={prevId} nextId={nextId} onNavigate={goTo} titleAs="h1" />
+          <CaseDetailView item={detail.data} prevId={prevId} nextId={nextId} onNavigate={goTo} titleAs="h1" hint="← → 切换" />
         ) : detail.isError ? (
           <div className="grid flex-1 place-items-center p-10 text-center">
             <div>

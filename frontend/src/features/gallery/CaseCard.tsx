@@ -1,27 +1,39 @@
 import { ImageOff } from 'lucide-react';
-import { memo, useState } from 'react';
+import { memo, useState, type CSSProperties } from 'react';
 import { Link, useLocation } from 'react-router';
 
 import type { CaseSummary } from '@/api/endpoints';
 import { Highlighted } from '@/components/Highlighted';
 import { cn } from '@/lib/utils';
 
-export const CARD_BODY_HEIGHT = 124;
+import type { MasonryBox } from './masonry';
 
-export const CaseCard = memo(function CaseCard({ item, eager }: { item: CaseSummary; eager: boolean }) {
+interface CaseCardProps {
+  item: CaseSummary;
+  box: MasonryBox;
+  eager: boolean;
+  /** 有搜索词时常显标题与摘要（F01、F03），否则悬停或聚焦时显示。 */
+  showInfo: boolean;
+}
+
+/** 瀑布流中的一张卡片：以图片为主，分类、标题、摘要叠在底部渐变层上。 */
+export const CaseCard = memo(function CaseCard({ item, box, eager, showInfo }: CaseCardProps) {
   const location = useLocation();
   const [loaded, setLoaded] = useState(false);
   const cover = item.cover;
+  const hoverOnly = !showInfo;
 
   return (
     <Link
       to={`/cases/${item.id}`}
       state={{ background: location }}
-      className="group flex h-full flex-col overflow-hidden rounded-xl border border-ink bg-panel transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-hard focus-visible:shadow-hard"
       aria-label={`打开案例 ${item.id}：${item.title}`}
+      data-info={showInfo ? 'always' : 'hover'}
+      className="group absolute block outline-none hover:z-10 focus-visible:z-10"
+      style={{ left: box.left, top: box.top, width: box.width, height: box.height, '--c': cover?.color ?? '#888' } as CSSProperties}
     >
       <div
-        className="relative aspect-[4/5] overflow-hidden border-b border-ink"
+        className="card-glow relative size-full overflow-hidden rounded-card group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-accent"
         style={{ backgroundColor: cover?.color ?? undefined }}
       >
         {cover ? (
@@ -35,49 +47,35 @@ export const CaseCard = memo(function CaseCard({ item, eager }: { item: CaseSumm
             fetchPriority={eager ? 'high' : 'auto'}
             onLoad={() => setLoaded(true)}
             className={cn(
-              'size-full object-cover transition-[opacity,transform] duration-500 group-hover:scale-[1.03]',
+              'absolute inset-0 size-full object-cover object-top transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.035]',
               loaded ? 'opacity-100' : 'opacity-0',
             )}
           />
         ) : (
-          <div className="grid size-full place-items-center bg-paper text-sm text-muted">
-            <span className="flex items-center gap-2">
+          <div className="absolute inset-0 grid place-items-center bg-surface-2 text-xs text-muted">
+            <span className="flex flex-col items-center gap-1.5">
               <ImageOff className="size-5" /> 暂无图片
             </span>
           </div>
         )}
-        {item.tags.length > 0 && (
-          <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
-            {item.tags.slice(0, 3).map((tag) => (
-              <span key={tag.id} className="rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur">
-                {tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-1.5 p-3.5" style={{ height: CARD_BODY_HEIGHT }}>
-        <span className="text-xs font-semibold text-muted">{item.category.name}</span>
-        <h2 className="line-clamp-1 text-[15px] leading-snug font-bold">
-          <Highlighted text={item.highlight?.title ?? item.title} />
-        </h2>
-        <p className="line-clamp-2 text-[13px] leading-relaxed text-muted">
-          <Highlighted text={item.highlight?.excerpt ?? item.excerpt} />
-        </p>
+        <div
+          className={cn(
+            'card-scrim pointer-events-none absolute inset-x-0 bottom-0 px-3.5 pt-12 pb-3.5 text-white transition-[opacity,transform] duration-300',
+            hoverOnly &&
+              'translate-y-1.5 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 touch:translate-y-0 touch:px-2.5 touch:pt-8 touch:pb-2 touch:opacity-100',
+          )}
+        >
+          <span className={cn('font-label text-[11px] font-semibold tracking-[.16em] text-[#f5c46e]', hoverOnly && 'touch:hidden')}>
+            {item.category.name}
+          </span>
+          <h2 className={cn('mt-0.5 line-clamp-2 text-[15px] leading-snug font-semibold', hoverOnly && 'touch:line-clamp-1 touch:text-xs')}>
+            <Highlighted text={item.highlight?.title ?? item.title} />
+          </h2>
+          <p className={cn('mt-1 line-clamp-2 text-xs leading-relaxed text-white/75', hoverOnly && 'touch:hidden')}>
+            <Highlighted text={item.highlight?.excerpt ?? item.excerpt} />
+          </p>
+        </div>
       </div>
     </Link>
   );
 });
-
-export function CaseCardSkeleton() {
-  return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-line bg-panel" aria-hidden>
-      <div className="skeleton aspect-[4/5]" />
-      <div className="flex flex-col gap-2 p-3.5" style={{ height: CARD_BODY_HEIGHT }}>
-        <div className="skeleton h-3 w-16 rounded" />
-        <div className="skeleton h-4 w-3/4 rounded" />
-        <div className="skeleton h-3 w-full rounded" />
-      </div>
-    </div>
-  );
-}

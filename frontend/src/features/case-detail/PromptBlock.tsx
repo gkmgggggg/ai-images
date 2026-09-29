@@ -1,9 +1,10 @@
 import { Check, Copy } from 'lucide-react';
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { toast } from 'sonner';
 
 import type { CaseDetail } from '@/api/endpoints';
 import { Button } from '@/components/ui/button';
+import { Segmented } from '@/components/ui/segmented';
 import { copyText, selectElementText } from '@/lib/clipboard';
 import { cn, formatNumber } from '@/lib/utils';
 
@@ -20,19 +21,30 @@ function variantsOf(item: CaseDetail): { key: Variant; text: string }[] {
   return list;
 }
 
-export function PromptBlock({ item }: { item: CaseDetail }) {
+export interface PromptState {
+  variants: { key: Variant; text: string }[];
+  current: { key: Variant; text: string };
+  setActive: (key: Variant) => void;
+  isJson: boolean;
+  copied: boolean;
+  copyLabel: string;
+  copy: () => Promise<void>;
+  preRef: RefObject<HTMLPreElement | null>;
+}
+
+/** 提示词的语言切换与复制状态；详情里的提示词区和窄屏底部操作栏共用（F05、F06）。 */
+export function usePrompt(item: CaseDetail): PromptState {
   const variants = useMemo(() => variantsOf(item), [item]);
   const [active, setActive] = useState<Variant>(variants[0]?.key ?? 'raw');
   const [copied, setCopied] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
-  const current = variants.find((v) => v.key === active) ?? variants[0];
-  const text = current?.text ?? '';
-  const isJson = item.prompt_format === 'json' && current?.key !== 'zh';
+  const current = variants.find((v) => v.key === active) ?? variants[0] ?? { key: 'raw' as const, text: '' };
+  const label = variants.length > 1 ? LABELS[current.key] : '';
 
   const copy = async () => {
-    if (await copyText(text)) {
+    if (await copyText(current.text)) {
       setCopied(true);
-      toast.success(`已复制${variants.length > 1 ? LABELS[current.key] : ''}提示词`);
+      toast.success(`已复制${label}提示词`);
       window.setTimeout(() => setCopied(false), 1600);
     } else {
       selectElementText(preRef.current);
@@ -40,40 +52,52 @@ export function PromptBlock({ item }: { item: CaseDetail }) {
     }
   };
 
+  return {
+    variants,
+    current,
+    setActive,
+    isJson: item.prompt_format === 'json' && current.key !== 'zh',
+    copied,
+    copyLabel: label ? `复制${label}` : '复制提示词',
+    copy,
+    preRef,
+  };
+}
+
+export function CopyButton({ prompt, className }: { prompt: PromptState; className?: string }) {
   return (
-    <div className="flex min-h-0 flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        {variants.length > 1 ? (
-          <div role="tablist" aria-label="提示词语言" className="inline-flex rounded-lg border border-line bg-paper p-0.5">
-            {variants.map((v) => (
-              <button
-                key={v.key}
-                type="button"
-                role="tab"
-                aria-selected={v.key === current.key}
-                onClick={() => setActive(v.key)}
-                className={cn(
-                  'rounded-md px-3 py-1 text-xs font-semibold',
-                  v.key === current.key ? 'bg-ink text-paper' : 'text-muted hover:text-ink',
-                )}
-              >
-                {LABELS[v.key]}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <span className="text-xs text-muted">{formatNumber(text.length)} 字符</span>
+    <Button variant="accent" onClick={() => void prompt.copy()} className={className}>
+      {prompt.copied ? <Check /> : <Copy />}
+      {prompt.copied ? '已复制' : prompt.copyLabel}
+    </Button>
+  );
+}
+
+/** 提示词区：语言切换、字符数、复制按钮（窄屏由底部操作栏负责复制），JSON 原文着色。 */
+export function PromptBlock({ prompt }: { prompt: PromptState }) {
+  const { variants, current, isJson } = prompt;
+  return (
+    <div className="flex min-h-0 flex-col gap-2.5 md:flex-1">
+      <div className="flex flex-wrap items-center gap-2.5">
+        {variants.length > 1 && (
+          <Segmented
+            label="提示词语言"
+            items={variants.map((v) => ({ value: v.key, label: LABELS[v.key] }))}
+            value={current.key}
+            onChange={prompt.setActive}
+          />
         )}
-        <Button variant="accent" onClick={copy}>
-          {copied ? <Check /> : <Copy />}
-          {copied ? '已复制' : variants.length > 1 ? `复制${LABELS[current.key]}` : '复制提示词'}
-        </Button>
+        <span className="ml-auto text-xs text-muted tabular-nums">{formatNumber(current.text.length)} 字符</span>
+        <CopyButton prompt={prompt} className="max-md:hidden" />
       </div>
       <pre
-        ref={preRef}
-        className="min-h-0 flex-1 overflow-auto rounded-lg border border-line bg-paper p-4 font-mono text-[13px] leading-relaxed break-words whitespace-pre-wrap"
+        ref={prompt.preRef}
+        className={cn(
+          'min-h-0 overflow-auto rounded-card border border-border bg-fg/[0.04] px-[18px] py-4 break-words whitespace-pre-wrap md:flex-1',
+          isJson ? 'font-mono text-[12.5px] leading-[1.75]' : 'font-sans text-sm leading-[1.85]',
+        )}
       >
-        {isJson ? <JsonText text={text} /> : text}
+        {isJson ? <JsonText text={current.text} /> : current.text}
       </pre>
     </div>
   );
@@ -99,20 +123,20 @@ export function JsonText({ text }: { text: string }) {
     const [whole, str, colon, literal, num] = match;
     if (str && colon) {
       nodes.push(
-        <span key={index} className="text-sky-700 dark:text-sky-300">
+        <span key={index} className="text-json-key">
           {str}
         </span>,
         colon,
       );
     } else if (str) {
       nodes.push(
-        <span key={index} className="text-emerald-700 dark:text-emerald-300">
+        <span key={index} className="text-json-string">
           {str}
         </span>,
       );
     } else if (literal || num) {
       nodes.push(
-        <span key={index} className="text-amber-700 dark:text-amber-300">
+        <span key={index} className="text-json-number">
           {whole}
         </span>,
       );
