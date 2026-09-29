@@ -47,6 +47,8 @@ docker compose exec api atlas create-admin admin
 
 ## 后端构建下载缓存
 
+后端在 `pyproject.toml` 中配置清华 PyPI 镜像为 uv 默认索引，并将镜像下载地址记录在 `uv.lock`。修改索引后需要在本地执行 `cd backend && uv lock`，检查依赖版本和下载地址的变化，再运行项目检查并提交配置与锁文件。Docker 使用 `--frozen`，不会在构建时自动重新生成锁文件。
+
 后端 Dockerfile 的两个 `uv sync` 步骤挂载 BuildKit 缓存目录 `/root/.cache/uv`，并使用已有的 `UV_LINK_MODE=copy`。当 `pyproject.toml` 或 `uv.lock` 改变、安装层必须重建时，可以复用已下载的软件包。
 
 缓存位于构建服务器，不随 Git 提交或镜像发布。首次使用缓存挂载仍需下载依赖；未缓存的新包也需要网络下载。不要为了常规更新清理构建缓存。镜像层缓存命中时整个安装步骤显示 `CACHED`；下载缓存则在步骤重新执行时减少下载。

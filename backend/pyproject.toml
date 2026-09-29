@@ -38,6 +38,12 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
 
+# 国内部署通过清华镜像下载 Python 依赖。
+[[tool.uv.index]]
+name = "tuna"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+default = true
+
 [tool.ruff]
 line-length = 110
 target-version = "py312"
