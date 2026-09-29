@@ -15,6 +15,11 @@
 - 需求与架构初稿移入 `docs/archive/`，现行需求以 `docs/product/requirements.md` 为准
 - README 精简为快速上手，详细内容移入 `docs/guides/`
 
+### 修复
+
+- 部署的网页入口默认改为宿主机 8080（可用 `.env` 的 `WEB_BIND` 调整），避免与宿主机已有 Nginx 的 80 端口冲突；未配置 HTTPS 时不发布容器 443
+- 用 `package.json` 的 `packageManager` 固定 pnpm 10.33.0，Docker、CI 与本地统一版本，修复 Docker 中 Corepack 自动选用最新 pnpm 后报 `ERR_PNPM_IGNORED_BUILDS` 导致的镜像构建失败；新增 `pnpm-workspace.yaml` 用 `allowBuilds` 明确允许 esbuild 安装脚本
+
 ### 已知问题
 
 - 把上游案例改到其他分类后，重新导入会重复创建一条（修复方案见规格 0001，待批准）

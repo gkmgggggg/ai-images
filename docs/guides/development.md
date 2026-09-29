@@ -1,7 +1,7 @@
 ---
 title: 本地开发
 status: active
-updated: 2026-09-28
+updated: 2026-09-29
 ---
 
 # 本地开发
@@ -13,7 +13,7 @@ updated: 2026-09-28
 | 工具 | 版本 | macOS 安装 |
 | --- | --- | --- |
 | Python + uv | 3.12 / uv 0.11+ | `brew install uv`，`uv python install 3.12` |
-| Node + pnpm | Node 24 / pnpm 10 | `brew install node pnpm` |
+| Node + pnpm | Node 24 / pnpm 10.33.0 | `brew install node pnpm`（pnpm 会按 `frontend/package.json` 的 `packageManager` 自动切换版本） |
 | PostgreSQL | 16 | `brew install postgresql@16 && brew services start postgresql@16` |
 | Meilisearch | 1.x | `brew install meilisearch` |
 

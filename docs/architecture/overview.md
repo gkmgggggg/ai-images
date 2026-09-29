@@ -1,7 +1,7 @@
 ---
 title: 架构总览
 status: active
-updated: 2026-09-28
+updated: 2026-09-29
 ---
 
 # 架构总览
@@ -74,4 +74,4 @@ frontend/src/
 
 ## 部署拓扑
 
-生产环境是一台阿里云 ECS 上的 Docker Compose：`web`（Nginx + 前端构建产物，暴露 80/443）、`api`（FastAPI，2 个 worker，启动时执行数据库迁移）、`postgres`、`meilisearch`（不暴露端口）。数据卷 `pgdata`、`media`、`meili_data`。详见 [部署指南](../guides/deployment.md)。
+生产环境是一台阿里云 ECS 上的 Docker Compose：`web`（Nginx + 前端构建产物，默认通过宿主机 8080 访问，可用 `WEB_BIND` 调整）、`api`（FastAPI，2 个 worker，启动时执行数据库迁移）、`postgres`、`meilisearch`（不暴露端口）。数据卷 `pgdata`、`media`、`meili_data`。详见 [部署指南](../guides/deployment.md)。

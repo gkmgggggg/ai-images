@@ -50,8 +50,9 @@ services:
       dockerfile: frontend/Dockerfile
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      # 宿主机端口默认 8080（80 常被宿主机已有的 Nginx 占用），在 .env 中用 WEB_BIND 调整
+      - "${WEB_BIND:-8080}:80"
+      # 由容器直接提供 HTTPS 时，挂载证书后再添加 "443:443"
     volumes:
       - media:/data/media:ro
       # - ./deploy/certs:/etc/nginx/certs:ro
