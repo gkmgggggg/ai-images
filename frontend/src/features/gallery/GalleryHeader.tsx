@@ -3,6 +3,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 
 import type { CategoriesOut, GalleryFilters, TagCount } from '@/api/endpoints';
+import { BrandMark } from '@/components/BrandMark';
 import { ThemeCycleButton, ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTitle, DialogTrigger, SheetContent } from '@/components/ui/dialog';
@@ -40,7 +41,7 @@ export function GalleryHeader({ keyword, onKeywordChange, onHome, onRandom, filt
     <div className="glass rounded-bar border border-border shadow-[0_16px_40px_-18px_rgba(0,0,0,.55)]">
       <div className="flex h-[58px] items-center gap-2 pr-2 pl-3 sm:h-[60px] sm:gap-5 sm:pr-2.5 sm:pl-[18px]">
         <Link to="/" onClick={onHome} aria-label="AI 图集首页" className="flex shrink-0 items-center gap-2.5">
-          <span aria-hidden className="logo-orb" />
+          <BrandMark />
           <strong className="text-base font-semibold whitespace-nowrap max-[359px]:sr-only sm:text-[17px]">AI 图集</strong>
           <small className="hidden font-label text-[10px] tracking-[.3em] text-muted lg:inline">PROMPT ATLAS</small>
         </Link>

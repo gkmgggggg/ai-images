@@ -162,17 +162,21 @@
     display: none;
   }
 
-  .logo-orb {
-    width: 14px;
-    height: 14px;
-    border-radius: 9999px;
-    background: radial-gradient(
-      circle at 35% 35%,
-      #fff6d8,
-      var(--accent) 48%,
-      color-mix(in oklab, var(--accent) 25%, transparent) 72%
-    );
-    box-shadow: 0 0 18px 3px color-mix(in oklab, var(--accent) 55%, transparent);
+  /* 品牌标记（BrandMark）：深色主题下加一圈淡光晕，与页面顶部的琥珀光呼应；浅色主题保持扁平 */
+  .dark .brand-mark {
+    filter: drop-shadow(0 0 6px color-mix(in oklab, var(--accent) 55%, transparent));
+  }
+
+  /* 登录页图片墙：每列内容重复两遍，平移半程后无缝接回起点 */
+  .wall-scroll {
+    animation: wall-scroll linear infinite;
+  }
+
+  /* 登录页图片墙上的渐隐：顶部压暗，底部与右侧融入背景，给品牌文字和表单区让出底色 */
+  .login-vignette {
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--bg) 50%, transparent), transparent 18%, transparent 24%, var(--bg) 68%),
+      linear-gradient(90deg, transparent 55%, var(--bg));
   }
 
   .glass {
@@ -208,6 +212,12 @@
   }
 }
 
+@keyframes wall-scroll {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -240,6 +250,22 @@
     opacity: 0;
     transform: translateY(-6px);
   }
+}
+
+/*
+ * 浏览器自动填充会把输入框刷成浅蓝或灰蓝底（用户代理的 !important 样式，作者样式盖不住），
+ * 这里把背景色的过渡拉到极长，让它一直停在主题底色上。放在图层之外，才不会被工具类的 transition 覆盖。
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--fg);
+  caret-color: var(--fg);
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s,
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -50,6 +50,9 @@ export const publicApi = {
     request<RandomCase>('/cases/random', {
       query: { category: filters.category, q: filters.q, tag: filters.tag },
     }),
+  /** 某个分类下的前几个有图案例，用于登录页的图片墙。 */
+  categorySample: (category: string, limit: number, signal?: AbortSignal) =>
+    request<CasePage>('/cases', { query: { category, has_image: true, limit }, signal }),
   caseDetail: (id: number, signal?: AbortSignal) => request<CaseDetail>(`/cases/${id}`, { signal }),
   categories: (q: string | undefined, tag: number | undefined, signal?: AbortSignal) =>
     request<CategoriesOut>('/categories', { query: { q, tag }, signal }),

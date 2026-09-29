@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 // 需要一个管理员账号：uv run atlas create-admin <用户名>
 const USERNAME = process.env.E2E_ADMIN_USER ?? 'admin';
@@ -77,4 +77,49 @@ test('F10 F09 F14 N06 后台：未登录跳转、登录、新建案例、上传�
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
     if (shots) await page.screenshot({ path: `${shots}/admin-cases-${width}.png` });
   }
+});
+
+async function login(page: Page) {
+  await page.goto('/admin/login');
+  await page.getByLabel('用户名').fill(USERNAME);
+  await page.getByLabel('密码').fill(PASSWORD);
+  await page.getByRole('button', { name: '登录' }).click();
+  await expect(page).toHaveURL(/\/admin\/cases/);
+  await expect(page.locator('tbody tr').first()).toBeVisible();
+}
+
+test('F10 侧栏收起后内容区变宽，刷新后保持（规格 0003 AC-6、AC-5）', async ({ page }) => {
+  await login(page);
+  const main = page.locator('main');
+  const before = (await main.boundingBox())!.width;
+
+  await page.getByRole('button', { name: '收起侧栏' }).click();
+  await expect(page.getByRole('button', { name: '展开侧栏' })).toBeVisible();
+  await expect.poll(async () => (await main.boundingBox())!.width).toBeGreaterThan(before + 150);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+
+  // 收起时悬停导航图标显示名称
+  await page.getByRole('link', { name: '分类' }).hover();
+  await expect(page.getByRole('link', { name: '分类' }).locator('span[aria-hidden="true"]')).toHaveCSS('opacity', '1');
+  if (shots) await page.screenshot({ path: `${shots}/admin-collapsed.png` });
+
+  await page.reload();
+  await expect(page.getByRole('button', { name: '展开侧栏' })).toBeVisible();
+  await page.getByRole('button', { name: '展开侧栏' }).click();
+  await expect(page.getByRole('button', { name: '收起侧栏' })).toBeVisible();
+});
+
+test('F10 N06 窄屏顶栏的账号菜单（规格 0003 AC-7）', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await login(page);
+  await expect(page.getByRole('button', { name: '收起侧栏' })).toBeHidden();
+  await expect(page.getByRole('button', { name: /^退出（/ })).toHaveCount(0);
+
+  await page.getByRole('button', { name: `账号菜单：${USERNAME}` }).first().click();
+  const menu = page.getByRole('dialog', { name: '账号菜单' });
+  await expect(menu.getByRole('link', { name: '查看前台' })).toBeVisible();
+  await expect(menu.getByRole('radiogroup', { name: '主题' })).toBeVisible();
+  if (shots) await page.screenshot({ path: `${shots}/admin-account-menu-375.png` });
+  await menu.getByRole('button', { name: '退出登录' }).click();
+  await expect(page).toHaveURL(/\/admin\/login/);
 });

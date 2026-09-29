@@ -22,7 +22,7 @@ requirements: [F01, F02, F03, F04, F05, F06, F07, F12, F13]
 | --- | --- | --- |
 | `/` | 图库 | 查询参数：`c` 分类 slug、`q` 关键词、`tag` 标签 id、`all=1` 包含无图案例 |
 | `/cases/:id` | 案例详情 | 从图库点开时为弹窗；直接访问、刷新时为独立页面 |
-| `/admin/login` | 登录 | `next` 参数只接受 `/admin` 开头的站内地址 |
+| `/admin/login` | 登录 | `next` 参数只接受 `/admin` 开头的站内地址。宽屏左栏是图片墙（[`LoginShowcase`](../../frontend/src/features/admin/LoginShowcase.tsx)：从有图最多的 6 个分类各取 4 张封面交错成 5 列，倾斜后相邻列反向缓慢滚动，纯装饰）加品牌介绍与收录数字，右栏是表单；窄屏图片墙淡化为背景 |
 | `/admin/cases`、`/admin/cases/new`、`/admin/cases/:id` | 案例列表与编辑 | 列表的筛选与页码也在 URL 中 |
 | `/admin/categories`、`/admin/tags`、`/admin/imports` | 分类、标签、导入与索引 | — |
 
@@ -43,6 +43,7 @@ requirements: [F01, F02, F03, F04, F05, F06, F07, F12, F13]
 | `['cases', filters]` | 图库列表（无限查询，`next_cursor` 翻页） | 切换筛选时保留旧数据并半透明显示 |
 | `['categories', q, tag]` | 分类计数 | — |
 | `['tags']`、`['meta']` | 标签、统计与上游信息 | 缓存 60 秒 |
+| `['login-showcase']` | 登录页图片墙的封面 | 不过期、不重试；失败时图片墙留空 |
 | `['case', id]` | 案例详情 | 404 不重试 |
 | `['admin', …]` | 后台数据 | 后台写操作成功后统一失效 `admin` 与前台相关 key |
 
@@ -110,7 +111,9 @@ requirements: [F01, F02, F03, F04, F05, F06, F07, F12, F13]
   - `--fg`、`--muted` 在各层背景上的对比度不低于 4.5:1，由单元测试直接读取 `index.css` 校验；`--faint` 只用于非必要元素。
 - **字体**：只用系统字体栈，不加载网络字体。`font-sans` 用于正文，`font-label` 用于小号标签，`font-mono` 用于代码。
 - **自定义变体**：`dark:`（深色主题）、`touch:`（`hover: none` 的触屏设备）。
-- **组件类**：光晕、渐变遮罩、毛玻璃、Logo 光点等工具类不好表达的效果，写成 `index.css` 里 `@layer components` 下的类（`card-glow`、`card-scrim`、`glass`、`logo-orb`、`scroll-fade-x`、`skeleton`、`select-chevron`）。
+- **组件类**：光晕、渐变遮罩、毛玻璃等工具类不好表达的效果，写成 `index.css` 里 `@layer components` 下的类（`card-glow`、`card-scrim`、`glass`、`brand-mark`、`wall-scroll`、`login-vignette`、`scroll-fade-x`、`skeleton`、`select-chevron`）。
+- **自动填充**：浏览器自动填充会给输入框刷上浅蓝或灰蓝底色，`index.css` 末尾用极长的背景色过渡把它挡住，保持主题底色；这条规则写在图层之外，否则会被工具类的 `transition` 覆盖。
+- **品牌标记**：[`BrandMark`](../../frontend/src/components/BrandMark.tsx) 是琥珀色四角罗盘星（SVG，颜色取 `--accent`，深色主题下带光晕），前台吸顶栏、后台侧栏和登录页共用；[`favicon.svg`](../../frontend/public/favicon.svg) 用同一图形，底色取深色主题的 `--surface`。
 - **通用组件**：放在 `components/ui/`，按 shadcn/ui 的写法手写（用 `cva` 定义变体）。
 
   | 组件 | 说明 |
@@ -131,3 +134,5 @@ requirements: [F01, F02, F03, F04, F05, F06, F07, F12, F13]
   - `StatusBadge`：状态用「圆点 + 文字」表示。
   - 案例编辑拆成 `caseSchema.ts`（校验与转换）、`CaseForm`（字段）和 `CaseImageManager`（图片）。
   - 窄屏时侧栏变成顶部横向导航，案例表格隐藏分类、来源、更新时间三列。
+  - 侧栏（[`AdminLayout`](../../frontend/src/features/admin/AdminLayout.tsx)，规格 0003）宽屏可收起：品牌行的按钮在 236 px 展开和 64 px 图标栏之间切换，外层 `grid-template-columns` 过渡 200 ms。收起时导航文字改为 `md:sr-only`，可读名称不变；悬停或键盘聚焦时右侧显示名称提示（`aria-hidden`）。状态由 [`useSidebarCollapsed`](../../frontend/src/features/admin/useSidebarCollapsed.ts) 存在 `localStorage` 的 `atlas-admin-sidebar`（`collapsed` / `expanded`，其他值按展开）。
+  - 主题切换、「查看前台」、退出登录都在 [`AccountMenu`](../../frontend/src/features/admin/AccountMenu.tsx) 里（Radix Popover）：宽屏由侧栏底部的用户行触发，收起时只剩头像、从右侧弹出；窄屏由顶栏右侧的头像触发。
